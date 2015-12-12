@@ -12,14 +12,7 @@
  * http://www.opensource.org/licenses/GPL-2.0
  *
  */
-
-
-
-
-
 ;(function( $ ) {
-
-
     $.fn.collagePlus = function( options ) {
 
         return this.each(function() {
@@ -29,26 +22,30 @@
              * set up vars
              *
              */
-
             // track row width by adding images, padding and css borders etc
-            var row         = 0,
+            var row       = 0,
+
             // collect elements to be re-sized in current row
-                elements    = [],
+                elements  = [],
+
             // track the number of rows generated
-                rownum = 1,
+                rownum    = 1,
+
             // needed for creating some additional defaults that are actually obtained
             // from the dom, which maybe doesn't make them defaults ?!
-                $this = $(this);
+                $this     = $(this);
 
 
             // width of the area the collage will be in
             $.fn.collagePlus.defaults.albumWidth    = $this.width();
+
             // padding between the images. Using padding left as we assume padding is even all the way round
             $.fn.collagePlus.defaults.padding       = parseFloat( $this.css('padding-left') );
+
             // object that contains the images to collage
             $.fn.collagePlus.defaults.images        = $this.children();
 
-            var settings = $.extend({}, $.fn.collagePlus.defaults, options);
+            var settings   = $.extend({}, $.fn.collagePlus.defaults, options);
 
             settings.images.each(
                 function(index){
@@ -63,8 +60,6 @@
                     var $this = $(this),
                         $img  = ($this.is("img")) ? $this : $(this).find("img");
 
-
-
                     /*
                      *
                      * get the current image size. Get image size in this order
@@ -74,10 +69,8 @@
                      * 3. after loading the image and checking it's actual size
                      *
                      */
-                    var w = (typeof $img.data("width") != 'undefined') ? $img.data("width") : $img.width(),
+                    var w = (typeof $img.data("width")  != 'undefined') ? $img.data("width")  : $img.width(),
                         h = (typeof $img.data("height") != 'undefined') ? $img.data("height") : $img.height();
-
-
 
                     /*
                      *
@@ -87,7 +80,6 @@
                      */
                     var imgParams = getImgProperty($img);
 
-
                     /*
                      *
                      * store the original size for resize events
@@ -95,8 +87,6 @@
                      */
                     $img.data("width", w);
                     $img.data("height", h);
-
-
 
                     /*
                      *
@@ -106,6 +96,7 @@
                      */
                     var nw = Math.ceil(w/h*settings.targetHeight),
                         nh = Math.ceil(settings.targetHeight);
+                    //var nw = w, nh = h;
 
                     /*
                      *
@@ -128,7 +119,7 @@
                      * it's time to make a row out of our images
                      *
                      */
-                    if( row > settings.albumWidth && elements.length != 0 ){
+                    if( row > settings.albumWidth  &&  elements.length != 0 ){
 
                         // call the method that calculates the final image sizes
                         // remove one set of padding as it's not needed for the last image in the row
@@ -164,7 +155,8 @@
 
         });
 
-        function resizeRow( obj, row, settings, rownum) {
+
+        function resizeRow(obj, row, settings, rownum) {
 
             /*
              *
@@ -184,27 +176,24 @@
             var imageExtras         = (settings.padding * (obj.length - 1)) + (obj.length * obj[0][3]),
                 albumWidthAdjusted  = settings.albumWidth - imageExtras,
                 overPercent         = albumWidthAdjusted / (row - imageExtras),
+
                 // start tracking our width with know values that will make up the total width
                 // like borders and padding
                 trackWidth          = imageExtras,
+
                 // guess whether this is the last row in a set by checking if the width is less
                 // than the parent width.
                 lastRow             = (row < settings.albumWidth  ? true : false);
-
-
-
-
 
             /*
              * Resize the images by the above % so that they'll fit in the album space
              */
             for (var i = 0; i < obj.length; i++) {
 
-
-
                 var $obj        = $(obj[i][0]),
                     fw          = Math.floor(obj[i][1] * overPercent),
                     fh          = Math.floor(obj[i][2] * overPercent),
+
                 // if the element is the last in the row,
                 // don't apply right hand padding (this is our flag for later)
                     isNotLast   = !!(( i < obj.length - 1 ));
@@ -213,11 +202,10 @@
                  * Checking if the user wants to not stretch the images of the last row to fit the
                  * parent element size
                  */
-                if(settings.allowPartialLastRow === true && lastRow === true){
+                if( settings.allowPartialLastRow === true  &&  lastRow === true ){
                    fw = obj[i][1];
                    fh = obj[i][2];
                 }
-
 
                 /*
                  *
@@ -227,7 +215,6 @@
                  *
                  */
                 trackWidth += fw;
-
 
                 /*
                  *
@@ -274,7 +261,6 @@
                     $obj.width(fw + obj[i][3]);
                 }
 
-
                 /*
                  *
                  * Set the height of the image
@@ -286,14 +272,12 @@
                     $obj.height(fh + obj[i][4]);
                 }
 
-
                 /*
                  *
                  * Apply the css extras like padding
                  *
                  */
                 applyModifications($obj, isNotLast, settings);
-
 
                 /*
                  *
@@ -302,42 +286,38 @@
                  * Wait until the image is loaded to do this
                  *
                  */
-
-                $img
-                    .one('load', function (target) {
-                    return function(){
-                        if( settings.effect == 'default'){
-                            target.animate({opacity: '1'},{duration: settings.fadeSpeed});
-                        } else {
-                            if(settings.direction == 'vertical'){
-                                var sequence = (rownum <= 10  ? rownum : 10);
+                $img.one('load', 
+                    function (target) {
+                        return function() {
+                            if( settings.effect == 'default'){
+                                target.animate({opacity: '1'}, {duration: settings.fadeSpeed});
                             } else {
-                                var sequence = (i <= 9  ? i+1 : 10);
+                                if(settings.direction == 'vertical'){
+                                    var sequence = (rownum <= 10  ? rownum : 10);
+                                } else {
+                                    var sequence = (i <= 9  ? i+1 : 10);
+                                }
+
+                                /* Remove old classes with the "effect-" name */
+                                target.removeClass(function (index, css) {
+                                    return (css.match(/\beffect-\S+/g) || []).join(' ');
+                                });
+                                target.addClass(settings.effect);
+                                target.addClass("effect-duration-" + sequence);
                             }
-                            /* Remove old classes with the "effect-" name */
-                            target.removeClass(function (index, css) {
-                                return (css.match(/\beffect-\S+/g) || []).join(' ');
-                            });
-                            target.addClass(settings.effect);
-                            target.addClass("effect-duration-" + sequence);
                         }
-                    }
-                    }($obj))
+                    }( $obj )
+                ).each(
                     /*
                      * fix for cached or loaded images
                      * For example if images are loaded in a "window.load" call we need to trigger
                      * the load call again
-                     */
-                    .each(function() {
-                            if(this.complete) $(this).trigger('load');
-                    });
-
-        }
-
-
-
-
-
+                     */                    
+                    function() {
+                        if(this.complete) $(this).trigger('load');
+                    }
+                );
+            }
         }
 
         /*
@@ -349,20 +329,22 @@
          */
         function applyModifications($obj, isNotLast, settings) {
             var css = {
-                    // Applying padding to element for the grid gap effect
-                    'margin-bottom'     : settings.padding + "px",
-                    'margin-right'      : (isNotLast) ? settings.padding + "px" : "0px",
-                    // Set it to an inline-block by default so that it doesn't break the row
-                    'display'           : settings.display,
-                    // Set vertical alignment otherwise you get 4px extra padding
-                    'vertical-align'    : "bottom",
-                    // Hide the overflow to hide the caption
-                    'overflow'          : "hidden"
-                };
 
+                // Applying padding to element for the grid gap effect
+                'margin-bottom'     : settings.padding + "px",
+                'margin-right'      : (isNotLast) ? settings.padding + "px" : "0px",
+
+                // Set it to an inline-block by default so that it doesn't break the row
+                'display'           : settings.display,
+
+                // Set vertical alignment otherwise you get 4px extra padding
+                'vertical-align'    : "bottom",
+
+                // Hide the overflow to hide the caption
+                'overflow'          : "hidden"
+            };
             return $obj.css(css);
         }
-
 
         /*
          *
@@ -370,29 +352,33 @@
          * with the image that will impact on the width calculations
          *
          */
-        function getImgProperty( img )
-        {
+        function getImgProperty( img ) {
             $img = $(img);
-            var params =  new Array();
+            var params =  [];
             params["w"] = (parseFloat($img.css("border-left-width")) + parseFloat($img.css("border-right-width")));
-            params["h"] = (parseFloat($img.css("border-top-width")) + parseFloat($img.css("border-bottom-width")));
+            params["h"] = (parseFloat($img.css("border-top-width"))  + parseFloat($img.css("border-bottom-width")));
             return params;
         }
-
     };
 
     $.fn.collagePlus.defaults = {
+
         // the ideal height you want your images to be
         'targetHeight'          : 400,
+
         // how quickly you want images to fade in once ready can be in ms, "slow" or "fast"
         'fadeSpeed'             : "fast",
+
         // how the resized block should be displayed. inline-block by default so that it doesn't break the row
         'display'               : "inline-block",
+
         // which effect you want to use for revealing the images (note CSS3 browsers only),
         'effect'                : 'default',
+
         // effect delays can either be applied per row to give the impression of descending appearance
         // or horizontally, so more like a flock of birds changing direction
         'direction'             : 'vertical',
+
         // Sometimes there is just one image on the last row and it gets blown up to a huge size to fit the
         // parent div width. To stop this behaviour, set this to true
         'allowPartialLastRow'   : false
